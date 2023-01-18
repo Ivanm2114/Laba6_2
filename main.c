@@ -59,20 +59,28 @@ float input_natural_float()
 
 }
 
+void rid_of_new_string_sym(char s[lmax]){
+    s[strlen(s)-1]='\0';
+}
 
 void input_book(FILE *file, struct book *b){
     fgets(b->title,lmax-1,file);
+    rid_of_new_string_sym(b->title);
     fscanf(file,"%f",&b->price);
     while(fgetc(file)!='\n');
     fgets(b->author,lmax-1,file);
+    rid_of_new_string_sym(b->author);
     fscanf(file,"%d",&b->pages);
     while(fgetc(file)!='\n');
     fscanf(file,"%d",&b->izdatelstvo.year);
     while(fgetc(file)!='\n');
     fgets(b->izdatelstvo.city,lmax-1,file);
+    rid_of_new_string_sym(b->izdatelstvo.city);
     fgets(b->izdatelstvo.name,lmax-1,file);
+    rid_of_new_string_sym(b->izdatelstvo.name);
 
 }
+
 
 
 void output_book(struct book *b){
@@ -98,7 +106,7 @@ void output_book(struct book *b){
 int function(struct book *a,int k, char b[lmax][lmax],char city[lmax], int year){
     int count=0;
     for(int i=0;i<k;i++){
-        printf("%d ",strcmp(a[i].izdatelstvo.city,city));
+        printf("%s%s\n",a[i].izdatelstvo.city,city);
         if(strcmp(a[i].izdatelstvo.city,city)==0 && a[i].izdatelstvo.year>year){
             strcpy(b[count++],a[i].title);
         }
