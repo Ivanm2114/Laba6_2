@@ -60,42 +60,35 @@ float input_natural_float()
 }
 
 
-
-void input_book(struct book *b){
-    printf("Название :  ");
-    gets(b->title);
-    printf("Цена:  ");
-    b->price=input_natural_float();
-    printf("Автор :   ");
-    gets(b->author);
-    printf("Кол-во страниц :  ");
-    b->pages = input_natural_int();
-    puts("Издательство:");
-    printf("Год издания:   ");
-    b->izdatelstvo.year=input_natural_int();
-    printf("Город:  ");
-    gets(b->izdatelstvo.city);
-    printf("Название:  ");
-    gets(b->izdatelstvo.name);
+void input_book(FILE *file, struct book *b){
+    fgets(b->title,lmax-1,file);
+    fscanf(file,"%f",&b->price);
+    while(fgetc(file)!='\n');
+    fgets(b->author,lmax-1,file);
+    fscanf(file,"%d",&b->pages);
+    while(fgetc(file)!='\n');
+    fscanf(file,"%d",&b->izdatelstvo.year);
+    while(fgetc(file)!='\n');
+    fgets(b->izdatelstvo.city,lmax-1,file);
+    fgets(b->izdatelstvo.name,lmax-1,file);
 
 }
 
 
-
 void output_book(struct book *b){
     printf("Название :\t\t");
-    puts(b->title);
+    printf("%s",b->title);
     printf("Цена:\t\t\t");
     printf("%.2f\n", b->price);
     printf("Автор :\t\t\t");
-    puts(b->author);
+    printf("%s",b->author);
     printf("Кол-во страниц :\t");
     printf("%d\n",b->pages);
     puts("Издательство:");
     printf("Год издания: \t\t");
     printf("%d\n",b->izdatelstvo.year);
     printf("Город:\t\t\t");
-    puts(b->izdatelstvo.city);
+    printf("%s",b->izdatelstvo.city);
     printf("Название:\t\t");
     puts(b->izdatelstvo.name);
 
@@ -105,10 +98,12 @@ void output_book(struct book *b){
 int function(struct book *a,int k, char b[lmax][lmax],char city[lmax], int year){
     int count=0;
     for(int i=0;i<k;i++){
+        printf("%d ",strcmp(a[i].izdatelstvo.city,city));
         if(strcmp(a[i].izdatelstvo.city,city)==0 && a[i].izdatelstvo.year>year){
             strcpy(b[count++],a[i].title);
         }
     }
+    printf("%d",count);
     return count;
 
 
@@ -117,32 +112,43 @@ int function(struct book *a,int k, char b[lmax][lmax],char city[lmax], int year)
 
 int main(){
     struct book A[lmax];
-    char titles[lmax][lmax];
+    char titles[lmax][lmax], rfilename[lmax],wfilename[lmax];
     int k,year, count;
     char city[lmax];
+    FILE *rfile,*wfile;
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
-    k=input_natural_int();
-    for(int i=0;i<k;i++){
-        input_book(&A[i]);
-    }
-    puts("\n\n");
-    for(int i=0;i<k;i++){
-        output_book(&A[i]);
-        puts("\n");
-    }
-    puts("Введите город");
-    gets(city);
-    puts("Введите год");
-    year=input_natural_int();
-    count=function(A,k,titles,city,year);
-    if(count>0){
-        printf("Найдено %d книг(а)\n",count);
-    for(int i=0;i<count;i++){
-        puts(titles[i]);
+    puts("Введите название файла с данными:");
+    gets(rfilename);
+    puts("Введите название файла с результатом:");
+    gets(wfilename);
+    rfile=fopen(rfilename,"r");
+    wfile=fopen(wfilename,"w");
+    if (rfile){
+        fscanf(rfile,"%d",&k);
+        while(fgetc(rfile)!='\n');
+        for(int i=0;i<k;i++){
+            input_book(rfile,&A[i]);
+        }
+        puts("\n\n");
+        for(int i=0;i<k;i++){
+            printf("Книга %d\n",i+1);
+            output_book(&A[i]);
+            puts("\n");
+        }
+        puts("Введите город");
+        gets(city);
+        puts("Введите год");
+        year=input_natural_int();
+        count=function(A,k,titles,city,year);
+        if(count>0){
+            printf("Найдено %d книг(а) изданных(ая) после %d года и выпущенных(ая) в городе ",count, year);
+            puts(city);
+        for(int i=0;i<count;i++){
+            puts(titles[i]);
+        }}
+        else{
+            printf("Книги не найдены");
     }}
-    else{
-        printf("Книги не найдены");
-    }
     return 0;
 }
